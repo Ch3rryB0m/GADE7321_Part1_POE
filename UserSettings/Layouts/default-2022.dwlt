@@ -48,7 +48,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 100}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 100
+  controlID: 98
 --- !u!114 &3
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -500,7 +500,7 @@ MonoBehaviour:
     m_SkipHidden: 1
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scripts
+    - Assets
     m_Globs: []
     m_OriginalText: 
     m_ImportLogFlags: 0
@@ -508,15 +508,15 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Scripts
+  - Assets
   m_LastFoldersGridSize: -1
-  m_LastProjectPath: C:\Users\skyle\OneDrive - ADvTECH Ltd\GADE7321_Part1_POE
+  m_LastProjectPath: C:\Users\skyle\OneDrive - ADvTECH Ltd\Github Projects\GADE7321_Part1_POE
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: da740000
-    m_LastClickedID: 29914
+    m_SelectedIDs: b2740000
+    m_LastClickedID: 29874
     m_ExpandedIDs: 00000000b2740000b4740000b6740000b8740000ba740000bc740000be74000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -685,9 +685,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 
+      m_SelectedIDs: 08f9ffff
       m_LastClickedID: 0
-      m_ExpandedIDs: e2faffff74720000
+      m_ExpandedIDs: e2faffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1169,11 +1169,11 @@ MonoBehaviour:
   m_Rotation:
     m_Target: {x: 0.3777311, y: 0.05993571, z: -0.024513694, w: 0.92366}
     speed: 2
-    m_Value: {x: 0.3744845, y: 0.05669254, z: -0.022949506, w: 0.92521393}
+    m_Value: {x: -0.3777311, y: -0.059935715, z: 0.024513695, w: -0.92366004}
   m_Size:
     m_Target: 3.509061
     speed: 2
-    m_Value: 3.6744096
+    m_Value: 3.509061
   m_Ortho:
     m_Target: 1
     speed: 2
