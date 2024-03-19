@@ -6,9 +6,9 @@ using UnityEngine;
 
 public abstract class StateManager<EState> : MonoBehaviour  where EState : Enum
 {
-    protected Dictionary<EState , BaseState<EState>> States = new Dictionary<EState, BaseState<EState>> ();
+    protected Dictionary<EState , State<EState>> States = new Dictionary<EState, State<EState>> ();
 
-    protected BaseState<EState> CurrentState;
+    protected State<EState> CurrentState;
 
     protected bool IsTransitioningState = false;
 
