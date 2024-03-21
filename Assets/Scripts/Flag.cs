@@ -2,16 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum Team
+{
+    Blue,
+    Red
+}
 public class Flag : MonoBehaviour
 {
-    public Transform dest;
-    private bool inRange = false;
-    private bool holdingFlag = false;
+
+    public Transform playerDest; // Destination for the player to pick up the flag
+    public Transform aiDest; // Destination for the AI to pick up the flag
+    private bool playerInRange = false;
+    private bool aiInRange = false;
+    public bool holdingFlag = false;
+    public Team team; // Team assigned to the flag
 
     void Update()
     {
-        Debug.Log("inRange: " + inRange);
-
+        // Player interaction
         if (Input.GetKeyDown(KeyCode.F))
         {
             if (holdingFlag)
@@ -19,11 +27,18 @@ public class Flag : MonoBehaviour
                 Debug.Log("F key pressed - dropping flag");
                 Drop();
             }
-            else if (inRange)
+            else if (playerInRange)
             {
                 Debug.Log("F key pressed - picking up flag");
-                Pickup();
+                Pickup(playerDest);
             }
+        }
+
+        // AI interaction
+        if (aiInRange && !holdingFlag)
+        {
+            Debug.Log("AI picking up flag");
+            Pickup(aiDest);
         }
     }
 
@@ -32,7 +47,12 @@ public class Flag : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             Debug.Log("Player entered range");
-            inRange = true;
+            playerInRange = true;
+        }
+        else if (other.CompareTag("AI"))
+        {
+            Debug.Log("AI entered range");
+            aiInRange = true;
         }
     }
 
@@ -41,11 +61,16 @@ public class Flag : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             Debug.Log("Player exited range");
-            inRange = false;
+            playerInRange = false;
+        }
+        else if (other.CompareTag("AI"))
+        {
+            Debug.Log("AI exited range");
+            aiInRange = false;
         }
     }
 
-    void Pickup()
+    void Pickup(Transform destination)
     {
         Debug.Log("Picking up flag");
         // Disable the collider and gravity
@@ -53,10 +78,10 @@ public class Flag : MonoBehaviour
         GetComponent<Rigidbody>().useGravity = false;
 
         // Move the object to the destination position
-        this.transform.position = dest.position;
+        transform.position = destination.position;
 
         // Set the object's parent to the destination
-        this.transform.parent = dest;
+        transform.parent = destination;
 
         // Disable any movement or rotation
         GetComponent<Rigidbody>().isKinematic = true;
@@ -68,7 +93,7 @@ public class Flag : MonoBehaviour
     {
         Debug.Log("Dropping flag");
         // Remove the parent
-        this.transform.parent = null;
+        transform.parent = null;
 
         // Enable gravity and collider
         GetComponent<Rigidbody>().useGravity = true;
@@ -79,24 +104,18 @@ public class Flag : MonoBehaviour
 
         holdingFlag = false;
     }
-    //public Transform dest;
 
-    //void OnMouseDown()
-    //{
+    // Method to reset the flag position to the spawn point
+    public void ResetFlag(bool isBlueTeam)
+    {
+        // Reset holding flag status
+        holdingFlag = false;
 
-    //    GetComponent<BoxCollider>().enabled = false;
-    //    GetComponent<Rigidbody>().useGravity = false;
-    //    this.transform.position = dest.position;
-    //    this.transform.parent = GameObject.Find("Destination").transform;
+        // Determine spawn point based on team color
+        Transform spawnPoint = isBlueTeam ? GameObject.FindWithTag("BlueBaseSpawn").transform : GameObject.FindWithTag("RedBaseSpawn").transform;
 
-
-    //}
-    //void OnMouseUp()
-    //{
-
-    //    this.transform.parent = null;
-    //    GetComponent<Rigidbody>().useGravity = true;
-    //    GetComponent<BoxCollider>().enabled = true ;
-
-    //}
+        // Reset flag position to the appropriate spawn point
+        transform.position = spawnPoint.position;
+        transform.rotation = spawnPoint.rotation;
+    }
 } 

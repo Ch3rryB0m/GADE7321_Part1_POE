@@ -4,52 +4,28 @@ using System.Collections.Generic;
 using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
-public abstract class StateManager<EState> : MonoBehaviour  where EState : Enum
+public  class StateManager : MonoBehaviour 
 {
-//    protected Dictionary<EState , State<EState>> States = new Dictionary<EState, State<EState>> ();
+    public State currentState;
 
-//    protected State<EState> CurrentState;
+    public void Update()
+    {
+        RunStateMachine();
+    }
 
-//    protected bool IsTransitioningState = false;
+    public void RunStateMachine()
+    {
+        State nextState = currentState?.RunCurrentState();
 
-//    void Start()
-//    {
-//        CurrentState.EnterState();
-//    }
+        if (nextState != null && nextState != currentState)
+        {
+            SwitchToNextState(nextState);
+        }
+    }
 
-//    void Update()
-//    {
-//        EState nextStateKey =CurrentState.GetNextState();
-//        if (!IsTransitioningState && nextStateKey.Equals(CurrentState.StateKey)) 
-//        {
-//            CurrentState.UpdateState();
-//        }
-//        else if(!IsTransitioningState) 
-//        {
-//            TransitionToState(nextStateKey);
-//        }
-//        CurrentState.UpdateState();
-//    }
-//    public void TransitionToState(EState statekey)
-//    {
-//        IsTransitioningState = true;
-//        CurrentState.ExitState();
-//        CurrentState = States[statekey];
-//        CurrentState.EnterState();
-//        IsTransitioningState = false;
-//    }
-
-//    void OnTriggerEnter(Collider other)
-//    {
-//        CurrentState.OnTriggerEnter(other);
-//    }
-
-//    void OnTriggerStay(Collider other)
-//    {
-//        CurrentState.OnTriggerStay(other);
-//    }
-//    void OnTriggerExit(Collider other)
-//    {
-//        CurrentState.OnTriggerExit(other);
-//    }
+    private void SwitchToNextState(State nextState)
+    {
+        currentState = nextState;
+    }
 }
+
