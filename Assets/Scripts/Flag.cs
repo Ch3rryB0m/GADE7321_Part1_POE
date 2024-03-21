@@ -70,7 +70,7 @@ public class Flag : MonoBehaviour
         }
     }
 
-    void Pickup(Transform destination)
+    public void Pickup(Transform destination)
     {
         Debug.Log("Picking up flag");
         // Disable the collider and gravity
@@ -89,7 +89,7 @@ public class Flag : MonoBehaviour
         holdingFlag = true;
     }
 
-    void Drop()
+    public void Drop()
     {
         Debug.Log("Dropping flag");
         // Remove the parent

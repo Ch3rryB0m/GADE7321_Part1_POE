@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
-public  class StateManager : MonoBehaviour 
+public class StateManager : MonoBehaviour 
 {
     public State currentState;
 
@@ -17,7 +17,7 @@ public  class StateManager : MonoBehaviour
     {
         State nextState = currentState?.RunCurrentState();
 
-        if (nextState != null && nextState != currentState)
+        if (nextState != null )
         {
             SwitchToNextState(nextState);
         }

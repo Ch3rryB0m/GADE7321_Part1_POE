@@ -15,17 +15,12 @@ public class IdleState : State
         AIController aiController = FindObjectOfType<AIController>();
 
         // Check if the player is within detection range and transition to chase state if true
-        if (chaseState != null && aiController.PlayerWithinDetectionRange())
+        if (chaseState != null && aiController.PlayerWithinAttackRange())
         {
             return chaseState;
         }
 
-        // Check if the player's flag is within pickup range and transition to pickup flag state if true
-        if (pickupFlagState != null && aiController.FlagWithinPickupRange(aiController.playerFlagTransform))
-        {
-            return pickupFlagState;
-        }
-
+        
         // Check if the AI's flag is within pickup range and transition to pickup flag state if true
         if (pickupFlagState != null && aiController.FlagWithinPickupRange(aiController.aiFlagTransform))
         {
