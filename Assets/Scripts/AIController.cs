@@ -68,21 +68,7 @@ public class AIController : MonoBehaviour
         return distanceToFlag <= 2f;
     }
 
-    // Method to try to pick up the flag
-    private void TryPickupFlag()
-    {
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, 2f))
-        {
-            if (hit.collider.CompareTag("flag"))
-            {
-                // Pick up the flag
-                currentFlag = hit.transform;
-                holdingFlag = true;
-                Debug.Log("Player picked up the flag.");
-            }
-        }
-    }
+    
     // Method to pick up the flag
     public void PickupFlag(Transform aiflagTransform)
     {
