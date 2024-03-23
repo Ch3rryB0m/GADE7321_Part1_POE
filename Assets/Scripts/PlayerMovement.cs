@@ -12,7 +12,7 @@ public class PlayerMovement : MonoBehaviour
 
     public bool holdingFlag = false; // Flag to track if the player is holding the flag
     private Transform currentFlag; // Reference to the flag currently held by the player
-
+    public AIController aicontroller;
     public float speed = 5f; // Movement speed
     public float staggerDuration = 0.5f; // Duration of stagger when hit
 
@@ -95,10 +95,10 @@ public class PlayerMovement : MonoBehaviour
     // Method to handle collision with opponent carrying the flag
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") && other.GetComponent<PlayerMovement>().holdingFlag)
+        if (other.CompareTag("AI") && other.GetComponent<AIController>().IsHoldingFlag)
         {
             // Force the opponent to drop the flag
-            other.GetComponent<PlayerMovement>().DropFlag();
+            other.GetComponent<AIController>().DropFlag();
 
             // Stagger the player for a short duration
             StartCoroutine(Stagger());

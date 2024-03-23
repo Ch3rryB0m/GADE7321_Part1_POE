@@ -22,7 +22,7 @@ public class IdleState : State
 
         
         // Check if the AI's flag is within pickup range and transition to pickup flag state if true
-        if (pickupFlagState != null && aiController.FlagWithinPickupRange(aiController.aiFlagTransform))
+        if (pickupFlagState != null && aiController.FlagWithinPickupRange(aiController.DefendFlag))
         {
             return pickupFlagState;
         }

@@ -11,7 +11,7 @@ public class Flag : MonoBehaviour
 {
 
     public Transform playerDest; // Destination for the player to pick up the flag
-    public Transform aiDest; // Destination for the AI to pick up the flag
+    public Transform AIDest; // Destination for the AI to pick up the flag
     private bool playerInRange = false;
     private bool aiInRange = false;
     public bool holdingFlag = false;
@@ -38,7 +38,7 @@ public class Flag : MonoBehaviour
         if (aiInRange && !holdingFlag)
         {
             Debug.Log("AI picking up flag");
-            Pickup(aiDest);
+            Pickup(AIDest);
         }
     }
 
