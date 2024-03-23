@@ -2,19 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.InputSystem.XR;
 
 public class PlayerMovement : MonoBehaviour
 {
+
     private CharacterController controller;
 
     public Transform blueBaseTransform; // Reference to the blue base's transform
     public Transform redBaseTransform; // Reference to the red base's transform
 
     public bool holdingFlag = false; // Flag to track if the player is holding the flag
-    private Transform currentFlag; // Reference to the flag currently held by the player
-    public AIController aicontroller;
+    public Transform blueFlag; // Reference to the flag currently held by the player
+    public Transform redFlag; // Reference to the flag held by the AI
+
+    public Transform playerDest; // Destination transform for holding the flag
+
     public float speed = 5f; // Movement speed
     public float staggerDuration = 0.5f; // Duration of stagger when hit
+    public float flagPickupRange = 1f; // Range for flag pickup
 
     private bool canMove = true; // Flag to control player movement after stagger
 
@@ -30,6 +36,16 @@ public class PlayerMovement : MonoBehaviour
             // Movement input
             Vector3 move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             controller.Move(move * Time.deltaTime * speed);
+            // Update is called once per frame
+           
+            FindObjectOfType<Score>();
+            
+
+            // Update flag position if holding
+            if (holdingFlag)
+            {
+                blueFlag.position = playerDest.position;
+            }
 
             // Check for flag toggle pickup/drop
             if (Input.GetKeyDown(KeyCode.F))
@@ -45,7 +61,7 @@ public class PlayerMovement : MonoBehaviour
             }
 
             // Check for flag capture
-            if (holdingFlag && currentFlag != null)
+            if (holdingFlag && redFlag != null)
             {
                 if (Vector3.Distance(transform.position, blueBaseTransform.position) < 1f) // Assuming player's base is blue
                 {
@@ -59,57 +75,49 @@ public class PlayerMovement : MonoBehaviour
     // Method to try to pick up the flag
     private void TryPickupFlag()
     {
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, 2f))
+        if (blueFlag != null && Vector3.Distance(transform.position, blueFlag.position) < flagPickupRange)
         {
-            if (hit.collider.CompareTag("flag"))
-            {
-                // Pick up the flag
-                currentFlag = hit.transform;
-                holdingFlag = true;
-                Debug.Log("Player picked up the flag.");
-            }
+            // Pick up the flag
+            blueFlag.SetParent(playerDest);
+            holdingFlag = true;
+            Debug.Log("Player picked up the flag.");
+        }
+        else if (!holdingFlag && redFlag != null && Vector3.Distance(transform.position, redFlag.position) < flagPickupRange)
+        {
+            ReturnFlag();
+        }
+        else
+        {
+            Debug.Log("Flag is out of range for pickup.");
         }
     }
 
     // Method to drop the flag
     public void DropFlag()
     {
-        // Drop the flag
-        currentFlag.position = transform.position + transform.forward * 2f; // Drop in front of the player
-        currentFlag = null;
-        holdingFlag = false;
-        Debug.Log("Player dropped the flag.");
+        if (holdingFlag)
+        {
+            // Drop the flag
+            blueFlag.parent = null;
+            holdingFlag = false;
+            Debug.Log("Player dropped the flag.");
+        }
+        else
+        {
+            Debug.Log("No flag to drop.");
+        }
     }
 
     // Method to return the flag to the base and score a point
     private void ReturnFlag()
     {
-        // Return the flag to the base and score a point
-        currentFlag.position = blueBaseTransform.position;
-        currentFlag = null;
-        holdingFlag = false;
-        Debug.Log("Player scored a point.");
-    }
-
-    // Method to handle collision with opponent carrying the flag
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("AI") && other.GetComponent<AIController>().IsHoldingFlag)
+        if (redFlag != null && Vector3.Distance(transform.position, redFlag.position) < flagPickupRange)
         {
-            // Force the opponent to drop the flag
-            other.GetComponent<AIController>().DropFlag();
-
-            // Stagger the player for a short duration
-            StartCoroutine(Stagger());
+            // Return the flag to the base and score a point
+            redFlag.position = blueBaseTransform.position;
+            redFlag = null;
+            holdingFlag = false;
+            Debug.Log("Player scored a point.");
         }
-    }
-
-    // Coroutine for player stagger
-    private IEnumerator Stagger()
-    {
-        canMove = false;
-        yield return new WaitForSeconds(staggerDuration);
-        canMove = true;
     }
 } 

@@ -1,51 +1,77 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.UIElements;
 
 public class AIStateMachine : MonoBehaviour
 {
-    // Define your player states here
+    // Pickup red
+    public NavMeshAgent agent; 
+    public Transform redFlag; 
+    public Transform aiDest;
+
+    // Chase
+    public bool IsInAttackRange = false;
+    public bool IsPlayerVisible = false;
+    public Transform player;
+    public float radius;
+    [Range(0f, 1f)]
+    public float angle;
+    public LayerMask targetMask;
+    public LayerMask obstacleMask;
+
+    // Return
+    public Transform redBase;
+    public bool holdingRedFlag;
+ 
+
+    // ai states 
     public enum AIState
     {
-        Idle,
+        PickupRedFlag,
+        Return,
         Chase,
-        Attacking,
-        Pickup
-        // Add more states as needed
+        Attack,
+        PickupBlueFlag
     }
-   
-    public Transform playerFlagTransform; // Reference to the player's flag transform
-    public Transform aiFlagTransform; // Reference to the AI's flag transform
-    public AIController aiController;
-    public Transform playerTransform; 
-    public bool IsInAttackRange;
+
+    
+
     // Current state of the player
     private AIState currentState;
 
     void Start()
     {
         // Set the initial state when the script starts
-        SetState(AIState.Idle);
+        SetState(AIState.PickupRedFlag);
     }
 
     void Update()
     {
+        FieldOfView();
+        FindObjectOfType<Score>();
         // Handle input or other conditions to determine state transitions
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (holdingRedFlag == true)
+        {
+            SetState(AIState.Return);
+        }
+        //else if (Collider)
+        //{
+            
+        //    SetState(AIState.Attack);
+        //}
+        else if (IsPlayerVisible == true)
         {
             SetState(AIState.Chase);
         }
-        else if (Input.GetKeyDown(KeyCode.A))
+        else if(Input.GetKeyDown(KeyCode.P))
         {
-            SetState(AIState.Attacking);
-        }
-        else if (Input.GetKey(KeyCode.W))
-        {
-            SetState(AIState.Pickup);
+            SetState(AIState.PickupBlueFlag);
         }
         else
         {
-            SetState(AIState.Idle);
+            SetState(AIState.PickupRedFlag);
         }
 
         // Perform state-specific behavior
@@ -66,72 +92,44 @@ public class AIStateMachine : MonoBehaviour
         // Implement behavior specific to each state
         switch (currentState)
         {
-            case AIState.Idle:
-                // Code for idle state
+            case AIState.PickupRedFlag:
+                // Code for red pickup state
                 {
                     // Implement idle state behavior
-                    Debug.Log("AI is idle");
+                    agent.SetDestination(redFlag.position);
+                    Debug.Log("AI is getting red flag");
 
-                    AIController aiController = FindObjectOfType<AIController>();
-
-                    // Check if the player is within detection range and transition to chase state if true
-                    if (aiController.PlayerWithinAttackRange())
-                    {
-                        currentState = AIState.Chase;
-                    }
-
-
-                    // Check if the AI's flag is within pickup range and transition to pickup flag state if true
-                    if (aiController.FlagWithinPickupRange(aiController.DefendFlag))
-                    {
-                        currentState = AIState.Pickup;
-                    }
-
-                    // Otherwise, remain in idle state
-                    currentState = AIState.Idle;
+                }
+                break;
+            case AIState.Return:
+                // Code for jumping state
+                {
+                    agent.SetDestination(redBase.position);
+                    // Update is called once per frame
+                    
+                    
+                    
                 }
                 break;
             case AIState.Chase:
-                // Code for jumping state
-                {
-
-                    if (IsInAttackRange)
-                    {
-                        currentState = AIState.Attacking;
-                    }
-                    else
-                    {
-                        currentState = AIState.Chase;
-                    }
-                }
-                break;
-            case AIState.Attacking:
                 // Code for attacking state
                 {
-                    Debug.Log("I have attacked");
-                    currentState = AIState.Attacking;
+                    agent.SetDestination(player.position);
+                    Debug.Log("I am chasing");
+                   
                 }
                 break;
-            case AIState.Pickup:
+            case AIState.Attack:
                 // Code for attacking state
                 {
-                    // Check if the player's flag is within pickup range
-                    if (aiController.FlagWithinPickupRange(playerFlagTransform))
-                    {
-                        // Implement behavior to pick up the player's flag
-                        aiController.PickupFlag(playerFlagTransform);
-                        Debug.Log("AI is picking up the player's flag");
-                    }
-
-                    // Check if the AI's flag is within pickup range
-                    if (aiController.FlagWithinPickupRange(aiFlagTransform))
-                    {
-                        // Implement behavior to pick up the AI's flag
-                        aiController.PickupFlag(aiFlagTransform);
-                        Debug.Log("AI is picking up its own flag");
-                    }
-
-                    currentState = AIState.Pickup; // Remain in the pickup flag state
+                     
+                    Debug.Log("AI is attacking");
+                   
+                }
+                break;
+            case AIState.PickupBlueFlag:
+                {
+                    Debug.Log("Ai is getting blue flag");
                 }
                 break;
         }
@@ -141,5 +139,42 @@ public class AIStateMachine : MonoBehaviour
     {
         // Implement any actions needed when entering a new state
         Debug.Log("Entering State: " + currentState);
+    }
+    public void FieldOfView()
+    {
+        Collider[] rangeChecks = Physics.OverlapSphere(transform.position, radius, targetMask);
+        if(rangeChecks.Length != 0) 
+        {
+            Transform target = rangeChecks[0].transform;
+            Vector3 directionToTarget =(target.position - transform.position).normalized;
+            if(Vector3.Angle(transform.forward, directionToTarget) < angle /2)
+            {
+                float distanceToTarget = Vector3.Distance(transform.position, target.position);
+
+                if(Physics.Raycast(transform.position, directionToTarget, distanceToTarget, obstacleMask))
+                {
+                    IsPlayerVisible = true;
+                    agent.SetDestination(player.position);
+                }
+                else
+                {
+                    IsPlayerVisible = false;
+                }
+            }
+            else if (IsPlayerVisible)
+            {
+                IsPlayerVisible = false;
+            }
+        }
+        
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.tag == "RedFlag")
+        {
+            other.transform.SetParent(aiDest.transform);
+            holdingRedFlag = true;
+            Debug.Log("AI Picked up red flag");
+        }
     }
 }
