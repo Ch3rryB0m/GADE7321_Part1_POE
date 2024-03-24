@@ -13,18 +13,16 @@ public class AIStateMachine : MonoBehaviour
 
     // Chase
     public bool IsInAttackRange = false;
-    public bool IsPlayerVisible = false;
     public Transform player;
-    public float radius;
-    [Range(0f, 1f)]
-    public float angle;
-    public LayerMask targetMask;
-    public LayerMask obstacleMask;
-
+    
     // Return
     public Transform redBase;
     public bool holdingRedFlag;
- 
+
+    //Attack
+    public bool collidedWithPlayer;
+    public float Range = 10;
+    public PlayerMovement playerMove;
 
     // ai states 
     public enum AIState
@@ -49,19 +47,19 @@ public class AIStateMachine : MonoBehaviour
 
     void Update()
     {
-        FieldOfView();
-        FindObjectOfType<Score>();
+        //FieldOfView(); 
+        float Distance;
+        Distance = Vector3.Distance(this.transform.position, player.transform.position);
         // Handle input or other conditions to determine state transitions
         if (holdingRedFlag == true)
         {
             SetState(AIState.Return);
         }
-        //else if (Collider)
-        //{
-            
-        //    SetState(AIState.Attack);
-        //}
-        else if (IsPlayerVisible == true)
+        else if (collidedWithPlayer == true)
+        {
+            SetState(AIState.Attack);
+        }
+        else if (Distance <= Range && playerMove.holdingFlag == true )
         {
             SetState(AIState.Chase);
         }
@@ -102,17 +100,15 @@ public class AIStateMachine : MonoBehaviour
                 }
                 break;
             case AIState.Return:
-                // Code for jumping state
+                // Code for return state
                 {
                     agent.SetDestination(redBase.position);
                     // Update is called once per frame
                     
-                    
-                    
                 }
                 break;
             case AIState.Chase:
-                // Code for attacking state
+                // Code for chase state
                 {
                     agent.SetDestination(player.position);
                     Debug.Log("I am chasing");
@@ -122,12 +118,13 @@ public class AIStateMachine : MonoBehaviour
             case AIState.Attack:
                 // Code for attacking state
                 {
-                     
+                    playerMove.DropFlag();
                     Debug.Log("AI is attacking");
                    
                 }
                 break;
             case AIState.PickupBlueFlag:
+                // Code for blueflag pick up
                 {
                     Debug.Log("Ai is getting blue flag");
                 }
@@ -140,34 +137,7 @@ public class AIStateMachine : MonoBehaviour
         // Implement any actions needed when entering a new state
         Debug.Log("Entering State: " + currentState);
     }
-    public void FieldOfView()
-    {
-        Collider[] rangeChecks = Physics.OverlapSphere(transform.position, radius, targetMask);
-        if(rangeChecks.Length != 0) 
-        {
-            Transform target = rangeChecks[0].transform;
-            Vector3 directionToTarget =(target.position - transform.position).normalized;
-            if(Vector3.Angle(transform.forward, directionToTarget) < angle /2)
-            {
-                float distanceToTarget = Vector3.Distance(transform.position, target.position);
 
-                if(Physics.Raycast(transform.position, directionToTarget, distanceToTarget, obstacleMask))
-                {
-                    IsPlayerVisible = true;
-                    agent.SetDestination(player.position);
-                }
-                else
-                {
-                    IsPlayerVisible = false;
-                }
-            }
-            else if (IsPlayerVisible)
-            {
-                IsPlayerVisible = false;
-            }
-        }
-        
-    }
     private void OnTriggerEnter(Collider other)
     {
         if(other.tag == "RedFlag")
@@ -175,6 +145,12 @@ public class AIStateMachine : MonoBehaviour
             other.transform.SetParent(aiDest.transform);
             holdingRedFlag = true;
             Debug.Log("AI Picked up red flag");
+        }
+        if (other.tag == "Player")
+        {
+            playerMove.DropFlag();
+            SetState(AIState.Attack);
+            
         }
     }
 }
