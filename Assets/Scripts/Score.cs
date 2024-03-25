@@ -8,22 +8,27 @@ using UnityEngine.UIElements;
 
 public class Score : MonoBehaviour
 {
+    // UI text
     public TextMeshProUGUI playerScoreText;
     public TextMeshProUGUI aiScoreText;
     public TextMeshProUGUI winnerText;
 
-    public GameObject winScreen;
+    public GameObject winScreen;//win screen panel
 
-    private int playerScore = 0;
+    //starting scores
+    private float playerScore = 0;
     private int aiScore = 0;
 
+    // All blue transforms and player
     public Transform blueBaseTransform;
     public Transform blueBaseFlagTransform;
     public Transform blueFlagTransform;
+    public Transform playerTransform;
+
+    // All red transforms and ai
     public Transform redBaseTransform;
     public Transform redBaseFlagTransform;
     public Transform redFlagTransform;  
-    public Transform playerTransform;
     public Transform aiTransform;
 
     void Start()
@@ -42,6 +47,7 @@ public class Score : MonoBehaviour
         aiScoreText.text = "AI: " + aiScore.ToString();
     }
 
+    // Method to increase Player's score
     public void IncreasePlayerScore()
     {
         playerScore++;
@@ -58,7 +64,7 @@ public class Score : MonoBehaviour
             RespawnPlayer();
         }
     }
-
+    // Method to increase Ai's score
     public void IncreaseAIScore()
     {
         aiScore++;
@@ -81,7 +87,6 @@ public class Score : MonoBehaviour
         winScreen.SetActive(true);
         winnerText.text = winner + " Wins!";
         Debug.Log(winner + " wins the game!");
-        // Add your end game logic here
     }
 
     public void RespawnFlags()
@@ -98,10 +103,10 @@ public class Score : MonoBehaviour
             Debug.LogWarning("Base transforms are not assigned.");
         }
     }
-
+    // Respawns player at the blue base
     public void RespawnPlayer()
     {
-        // Respawn player at the blue base
+        
         if (blueBaseTransform != null)
         {
             playerTransform.position = blueBaseTransform.position;
@@ -112,10 +117,10 @@ public class Score : MonoBehaviour
             Debug.LogWarning("Blue base transform is not assigned.");
         }
     }
-
+    // Respawn AI at the red base
     void RespawnAI()
     {
-        // Respawn AI at the red base
+      
         if (redBaseTransform != null)
         {
             aiTransform.position = redBaseTransform.position;
@@ -127,6 +132,7 @@ public class Score : MonoBehaviour
         }
     }
 
+    //Trigger events
     public void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("BlueFlag") && blueFlagTransform.position == redBaseTransform.position)

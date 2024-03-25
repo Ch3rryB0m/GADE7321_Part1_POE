@@ -10,21 +10,21 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController controller;
     AIStateMachine stateMachine;
 
-    public Transform blueBaseTransform; // Reference to the blue base's transform
-    public Transform blueBaseFlagSpawn;
-    public Transform redBaseTransform; // Reference to the red base's transform
+    public Transform blueBaseTransform; //  blue base's transform
+    public Transform blueBaseFlagSpawn; // where the flag respawns at the blue base
+    public Transform redBaseTransform; // red base's transform
 
-    public bool holdingFlag = false; // Flag to track if the player is holding the flag
-    public Transform blueFlag; // Reference to the flag currently held by the player
-    public Transform redFlag; // Reference to the flag held by the AI
+    public bool holdingFlag = false; // track if the player is holding a flag
+    public Transform blueFlag; // blue flag transform
+    public Transform redFlag; // red flag transform
 
+    public Transform player; // players transform
     public Transform playerDest; // Destination transform for holding the flag
 
     public float speed = 5f; // Movement speed
-    public float staggerDuration = 0.5f; // Duration of stagger when hit
     public float flagPickupRange = 1f; // Range for flag pickup
 
-    private bool canMove = true; // Flag to control player movement after stagger
+    private bool canMove = true;// don't need this anymore but too scared to change it
 
     void Start()
     {
@@ -46,21 +46,16 @@ public class PlayerMovement : MonoBehaviour
             {
                 blueFlag.position = playerDest.position;
             }
-
-            // Check for flag toggle pickup/drop
+            // F to pickup flag
             if (Input.GetKeyDown(KeyCode.F))
             {
                 if (!holdingFlag) // If not holding a flag, try to pick up
                 {
                     TryPickupFlag();
                 }
-                else // If holding a flag, drop it
-                {
-                    DropFlag();
-                }
+                
             }
-
-            // Check for flag capture
+            // Checks for flag capture
             if (holdingFlag && redFlag != null)
             {
                 if (Vector3.Distance(transform.position, blueBaseTransform.position) < 1f) 
@@ -77,7 +72,6 @@ public class PlayerMovement : MonoBehaviour
     {
         if (blueFlag != null && Vector3.Distance(transform.position, blueFlag.position) < flagPickupRange)
         {
-            // Pick up the flag
             blueFlag.SetParent(playerDest);
             holdingFlag = true;
             Debug.Log("Player picked up the flag.");
@@ -97,41 +91,43 @@ public class PlayerMovement : MonoBehaviour
     {
         if (holdingFlag)
         {
-            // Drop the flag
-            blueFlag.parent = null;
+
+            blueFlag.position = blueBaseTransform.position;
+            blueFlag.SetParent(null);
+            blueFlag.GetComponent<Rigidbody>().isKinematic = false;
             holdingFlag = false;
-            Debug.Log("Player dropped the flag.");
+            Debug.Log("player dropped the red flag.");
+
+            score.IncreasePlayerScore();
+            score.RespawnFlags();
         }
         else
         {
-            Debug.Log("Player has no flag to drop.");
+            Debug.Log("No flag to drop.");
         }
     }
 
-    // Method to return the red flag to the base 
+    // Method to return the red flag to the blue base 
     public void ReturnFlag()
     {
-        if (redFlag != null && Vector3.Distance(transform.position, redFlag.position) < flagPickupRange)
+        if (redFlag != null)
         {
-            // Return the red flag to the base
             redFlag.position = blueBaseTransform.position;
             redFlag.SetParent(blueBaseFlagSpawn);
-            redFlag = null;
-            //stateMachine.holdingRedFlag = false; 
-            holdingFlag = false;
             Debug.Log("Player recaptured red Flag");
         }
     }
+    // not sure if this is necessary anymore but not sure what removing it will do
     public void OnTriggerEnter(Collider other)
     {
         Debug.Log("Trigger entered: " + other.tag);
 
-        if (other.CompareTag("BlueFlag") && blueFlag.position == blueBaseTransform.position)
+        if (other.CompareTag("BlueBaseSpawn") && holdingFlag == true)
         {
-            Debug.Log("Player triggered blue flag.");
-            score.IncreasePlayerScore();
-            score.RespawnFlags();
+            Debug.Log("point works blue base collision");
+            DropFlag();
         }
+        
 
     }
 } 

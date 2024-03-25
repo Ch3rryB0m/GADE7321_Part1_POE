@@ -6,8 +6,10 @@ using UnityEngine.UIElements;
 
 public class AIStateMachine : MonoBehaviour
 {
+    // reference to score
     public Score score;
-    // Pickup red
+    
+    // Pickup red flag
     public NavMeshAgent agent; 
     public Transform redFlag; 
     public Transform aiDest;
@@ -26,7 +28,7 @@ public class AIStateMachine : MonoBehaviour
     public float Range = 10;
     public PlayerMovement playerMove;
 
-    //Pickup blue
+    //Pickup blue flag
     public float flagPickupRange = 1f;
     public Transform blueFlag;
 
@@ -39,8 +41,6 @@ public class AIStateMachine : MonoBehaviour
         Attack,
         PickupBlueFlag
     }
-
-    
 
     // Current state of the player
     private AIState currentState;
@@ -56,6 +56,7 @@ public class AIStateMachine : MonoBehaviour
         
         FindObjectOfType<Score>();
         score.UpdateScoreText();
+        //CheckCollisionWithPlayer();
         float Distance;
         Distance = Vector3.Distance(this.transform.position, player.transform.position);
         // Handle input or other conditions to determine state transitions
@@ -88,7 +89,6 @@ public class AIStateMachine : MonoBehaviour
     private void SetState(AIState newState)
     {
         currentState = newState;
-        // Perform any additional actions when entering a new state
         EnterState();
     }
 
@@ -101,13 +101,13 @@ public class AIStateMachine : MonoBehaviour
             case AIState.PickupRedFlag:
                 // Code for red pickup state
                 { 
-                    // Implement code to pick up the red flag
+
                     agent.SetDestination(redFlag.position);
                     Debug.Log("AI is getting red flag");
                    
                     if (redFlag != null && Vector3.Distance(transform.position, redFlag.position) < flagPickupRange)
                     {
-                        // Parent the red flag to the AI or its destination
+
                         redFlag.SetParent(aiDest);
                         redFlag.localPosition = Vector3.zero;
                         redFlag.GetComponent<Rigidbody>().isKinematic = true;
@@ -136,7 +136,7 @@ public class AIStateMachine : MonoBehaviour
                 }
                 break;
             case AIState.Attack:
-                // Code for attacking state
+                // Code for attack state
                 {
                     playerMove.DropFlag();
                     Debug.Log("AI is attacking");
@@ -161,17 +161,8 @@ public class AIStateMachine : MonoBehaviour
         // Implement any actions needed when entering a new state
         Debug.Log("Entering State: " + currentState);
     }
-    public void ReturnBlue()
-    {
-        if (blueFlag != null && Vector3.Distance(transform.position, redFlag.position) < flagPickupRange)
-        {
-            // Return the flag to the base and score a point
-            blueFlag.position = redBase.position;
-            blueFlag = null;
-            Debug.Log("Ai returned blue flag to red base.");
-        }
-
-    }
+   
+    // Method to drop red flag when AI reaches its base
     public void RedDrop() 
     {
         if (holdingRedFlag)
@@ -183,6 +174,7 @@ public class AIStateMachine : MonoBehaviour
             holdingRedFlag = false;
             Debug.Log("AI dropped the red flag.");
 
+            score.IncreaseAIScore();
             score.RespawnFlags();
         }
         else
@@ -192,6 +184,7 @@ public class AIStateMachine : MonoBehaviour
         
     }
    
+    //Trigger events
     private void OnTriggerEnter(Collider other)
     {
         if(other.tag == "RedFlag")
@@ -200,22 +193,17 @@ public class AIStateMachine : MonoBehaviour
             holdingRedFlag = true;
             Debug.Log("AI Picked up red flag");
         }
-        if (other.CompareTag("RedFlag") && redFlag.position == redBase.position)
-        {
-            holdingRedFlag = true;
-            score.IncreaseAIScore();
-            score.RespawnFlags();
-        }
         if (other.tag == "Player")
         {
             playerMove.DropFlag();
             SetState(AIState.Attack);
             
         }
-        if(other.tag == "Player" && holdingRedFlag == true)
+        if (other.tag == "Player" && holdingRedFlag == true)
         {
             holdingRedFlag = false;
             playerMove.ReturnFlag();
+            Debug.Log("holding flag collision triggered");
         }
         if (other.tag == "RedBaseSpawn")
         {
