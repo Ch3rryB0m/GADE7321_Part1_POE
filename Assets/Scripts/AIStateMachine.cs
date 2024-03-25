@@ -6,6 +6,7 @@ using UnityEngine.UIElements;
 
 public class AIStateMachine : MonoBehaviour
 {
+    public Score score;
     // Pickup red
     public NavMeshAgent agent; 
     public Transform redFlag; 
@@ -17,12 +18,17 @@ public class AIStateMachine : MonoBehaviour
     
     // Return
     public Transform redBase;
+    public Transform redBaseSpawn;
     public bool holdingRedFlag;
 
     //Attack
     public bool collidedWithPlayer;
     public float Range = 10;
     public PlayerMovement playerMove;
+
+    //Pickup blue
+    public float flagPickupRange = 1f;
+    public Transform blueFlag;
 
     // ai states 
     public enum AIState
@@ -47,7 +53,9 @@ public class AIStateMachine : MonoBehaviour
 
     void Update()
     {
-        //FieldOfView(); 
+        
+        FindObjectOfType<Score>();
+        score.UpdateScoreText();
         float Distance;
         Distance = Vector3.Distance(this.transform.position, player.transform.position);
         // Handle input or other conditions to determine state transitions
@@ -63,7 +71,7 @@ public class AIStateMachine : MonoBehaviour
         {
             SetState(AIState.Chase);
         }
-        else if(Input.GetKeyDown(KeyCode.P))
+        else if(blueFlag != null && Vector3.Distance(transform.position, blueFlag.position) < flagPickupRange && playerMove.holdingFlag == false)
         {
             SetState(AIState.PickupBlueFlag);
         }
@@ -92,10 +100,20 @@ public class AIStateMachine : MonoBehaviour
         {
             case AIState.PickupRedFlag:
                 // Code for red pickup state
-                {
-                    // Implement idle state behavior
+                { 
+                    // Implement code to pick up the red flag
                     agent.SetDestination(redFlag.position);
                     Debug.Log("AI is getting red flag");
+                   
+                    if (redFlag != null && Vector3.Distance(transform.position, redFlag.position) < flagPickupRange)
+                    {
+                        // Parent the red flag to the AI or its destination
+                        redFlag.SetParent(aiDest);
+                        redFlag.localPosition = Vector3.zero;
+                        redFlag.GetComponent<Rigidbody>().isKinematic = true;
+                        holdingRedFlag = true;
+                        Debug.Log("AI picked up red flag");
+                    }
 
                 }
                 break;
@@ -103,8 +121,10 @@ public class AIStateMachine : MonoBehaviour
                 // Code for return state
                 {
                     agent.SetDestination(redBase.position);
-                    // Update is called once per frame
-                    
+                    if (Vector3.Distance(transform.position, redBase.position) < 1f && holdingRedFlag)
+                    {
+                        RedDrop();
+                    }
                 }
                 break;
             case AIState.Chase:
@@ -126,6 +146,10 @@ public class AIStateMachine : MonoBehaviour
             case AIState.PickupBlueFlag:
                 // Code for blueflag pick up
                 {
+                    blueFlag.position = redBase.position;
+                    blueFlag = null;
+                    
+
                     Debug.Log("Ai is getting blue flag");
                 }
                 break;
@@ -137,7 +161,36 @@ public class AIStateMachine : MonoBehaviour
         // Implement any actions needed when entering a new state
         Debug.Log("Entering State: " + currentState);
     }
+    public void ReturnBlue()
+    {
+        if (blueFlag != null && Vector3.Distance(transform.position, redFlag.position) < flagPickupRange)
+        {
+            // Return the flag to the base and score a point
+            blueFlag.position = redBase.position;
+            blueFlag = null;
+            Debug.Log("Player scored a point.");
+        }
 
+    }
+    public void RedDrop() 
+    {
+        if (holdingRedFlag)
+        {
+            
+            redFlag.position = redBaseSpawn.position;
+            redFlag.SetParent(null);
+            redFlag.GetComponent<Rigidbody>().isKinematic = false;
+            holdingRedFlag = false;
+            Debug.Log("AI dropped the red flag.");
+
+            score.RespawnFlags();
+        }
+        else
+        {
+            Debug.Log("No flag to drop.");
+        }
+        
+    }
     private void OnTriggerEnter(Collider other)
     {
         if(other.tag == "RedFlag")
@@ -146,11 +199,22 @@ public class AIStateMachine : MonoBehaviour
             holdingRedFlag = true;
             Debug.Log("AI Picked up red flag");
         }
+        if (other.CompareTag("RedFlag") && redFlag.position == redBase.position)
+        {
+            holdingRedFlag = true;
+            score.IncreaseAIScore();
+            score.RespawnFlags();
+        }
         if (other.tag == "Player")
         {
             playerMove.DropFlag();
             SetState(AIState.Attack);
             
+        }
+        if (other.tag == "RedBaseSpawn")
+        {
+            RedDrop();
+            Debug.Log("ai dropped the flag.");
         }
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine.InputSystem.XR;
 
 public class PlayerMovement : MonoBehaviour
 {
-
+    public Score score;
     private CharacterController controller;
 
     public Transform blueBaseTransform; // Reference to the blue base's transform
@@ -31,15 +31,13 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        FindObjectOfType<Score>();
+        score.UpdateScoreText();
         if (canMove)
         {
             // Movement input
             Vector3 move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             controller.Move(move * Time.deltaTime * speed);
-            // Update is called once per frame
-           
-            FindObjectOfType<Score>();
-            
 
             // Update flag position if holding
             if (holdingFlag)
@@ -104,20 +102,32 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            Debug.Log("No flag to drop.");
+            Debug.Log("Player has no flag to drop.");
         }
     }
 
-    // Method to return the flag to the base and score a point
+    // Method to return the red flag to the base 
     private void ReturnFlag()
     {
         if (redFlag != null && Vector3.Distance(transform.position, redFlag.position) < flagPickupRange)
         {
-            // Return the flag to the base and score a point
+            // Return the red flag to the base
             redFlag.position = blueBaseTransform.position;
             redFlag = null;
             holdingFlag = false;
-            Debug.Log("Player scored a point.");
+            Debug.Log("Player recaptured red Flag");
         }
+    }
+    public void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("Trigger entered: " + other.tag);
+
+        if (other.CompareTag("BlueFlag") && blueFlag.position == blueBaseTransform.position)
+        {
+            Debug.Log("Player triggered blue flag.");
+            score.IncreasePlayerScore();
+            score.RespawnFlags();
+        }
+
     }
 } 

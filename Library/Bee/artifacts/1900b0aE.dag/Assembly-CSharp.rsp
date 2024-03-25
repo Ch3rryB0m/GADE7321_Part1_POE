@@ -390,7 +390,7 @@
 "Assets/Scripts/PlayerMovement.cs"
 "Assets/Scripts/RedBase.cs"
 "Assets/Scripts/RedFlag.cs"
-"Assets/Scripts/SetScore.cs"
+"Assets/Scripts/Score.cs"
 "Assets/TextMesh Pro/Examples & Extras/Scripts/Benchmark01.cs"
 "Assets/TextMesh Pro/Examples & Extras/Scripts/Benchmark01_UGUI.cs"
 "Assets/TextMesh Pro/Examples & Extras/Scripts/Benchmark02.cs"
