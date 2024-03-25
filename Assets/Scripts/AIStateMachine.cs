@@ -168,7 +168,7 @@ public class AIStateMachine : MonoBehaviour
             // Return the flag to the base and score a point
             blueFlag.position = redBase.position;
             blueFlag = null;
-            Debug.Log("Player scored a point.");
+            Debug.Log("Ai returned blue flag to red base.");
         }
 
     }
@@ -191,6 +191,7 @@ public class AIStateMachine : MonoBehaviour
         }
         
     }
+   
     private void OnTriggerEnter(Collider other)
     {
         if(other.tag == "RedFlag")
@@ -210,6 +211,11 @@ public class AIStateMachine : MonoBehaviour
             playerMove.DropFlag();
             SetState(AIState.Attack);
             
+        }
+        if(other.tag == "Player" && holdingRedFlag == true)
+        {
+            holdingRedFlag = false;
+            playerMove.ReturnFlag();
         }
         if (other.tag == "RedBaseSpawn")
         {

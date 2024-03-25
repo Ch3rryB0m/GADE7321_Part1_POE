@@ -8,8 +8,10 @@ public class PlayerMovement : MonoBehaviour
 {
     public Score score;
     private CharacterController controller;
+    AIStateMachine stateMachine;
 
     public Transform blueBaseTransform; // Reference to the blue base's transform
+    public Transform blueBaseFlagSpawn;
     public Transform redBaseTransform; // Reference to the red base's transform
 
     public bool holdingFlag = false; // Flag to track if the player is holding the flag
@@ -61,9 +63,9 @@ public class PlayerMovement : MonoBehaviour
             // Check for flag capture
             if (holdingFlag && redFlag != null)
             {
-                if (Vector3.Distance(transform.position, blueBaseTransform.position) < 1f) // Assuming player's base is blue
+                if (Vector3.Distance(transform.position, blueBaseTransform.position) < 1f) 
                 {
-                    // Return the flag to the base and score a point
+                    // Return the flag to the blue base 
                     ReturnFlag();
                 }
             }
@@ -107,13 +109,15 @@ public class PlayerMovement : MonoBehaviour
     }
 
     // Method to return the red flag to the base 
-    private void ReturnFlag()
+    public void ReturnFlag()
     {
         if (redFlag != null && Vector3.Distance(transform.position, redFlag.position) < flagPickupRange)
         {
             // Return the red flag to the base
             redFlag.position = blueBaseTransform.position;
+            redFlag.SetParent(blueBaseFlagSpawn);
             redFlag = null;
+            //stateMachine.holdingRedFlag = false; 
             holdingFlag = false;
             Debug.Log("Player recaptured red Flag");
         }

@@ -10,6 +10,9 @@ public class Score : MonoBehaviour
 {
     public TextMeshProUGUI playerScoreText;
     public TextMeshProUGUI aiScoreText;
+    public TextMeshProUGUI winnerText;
+
+    public GameObject winScreen;
 
     private int playerScore = 0;
     private int aiScore = 0;
@@ -26,6 +29,7 @@ public class Score : MonoBehaviour
     void Start()
     {
         UpdateScoreText();
+        winScreen.SetActive(false);
     }
 
     private void Update()
@@ -74,6 +78,8 @@ public class Score : MonoBehaviour
 
     void EndGame(string winner)
     {
+        winScreen.SetActive(true);
+        winnerText.text = winner + " Wins!";
         Debug.Log(winner + " wins the game!");
         // Add your end game logic here
     }
