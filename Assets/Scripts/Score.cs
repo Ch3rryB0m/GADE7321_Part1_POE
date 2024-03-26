@@ -118,7 +118,7 @@ public class Score : MonoBehaviour
         }
     }
     // Respawn AI at the red base
-    void RespawnAI()
+     public void RespawnAI()
     {
       
         if (redBaseTransform != null)

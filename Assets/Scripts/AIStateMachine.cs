@@ -208,7 +208,7 @@ public class AIStateMachine : MonoBehaviour
         if (other.tag == "RedBaseSpawn")
         {
             RedDrop();
-            Debug.Log("ai dropped the flag.");
+            Debug.Log("ai dropped the flag and scored.");
         }
     }
 }
