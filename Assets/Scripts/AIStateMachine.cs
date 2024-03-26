@@ -121,7 +121,7 @@ public class AIStateMachine : MonoBehaviour
                 // Code for return state
                 {
                     agent.SetDestination(redBase.position);
-                    if (Vector3.Distance(transform.position, redBase.position) < 1f && holdingRedFlag)
+                    if (Vector3.Distance(transform.position, redBase.position) < 1f && holdingRedFlag == true)
                     {
                         RedDrop();
                     }

@@ -62,6 +62,7 @@ public class Score : MonoBehaviour
         {
             RespawnFlags();
             RespawnPlayer();
+            RespawnAI();
         }
     }
     // Method to increase Ai's score
@@ -79,6 +80,7 @@ public class Score : MonoBehaviour
         {
             RespawnFlags();
             RespawnAI();
+            RespawnPlayer();
         }
     }
 
